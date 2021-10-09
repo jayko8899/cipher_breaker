@@ -5,6 +5,7 @@ from statistics import mode
 from typing import Counter
 import random
 import string
+import sys
 
 LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 KEY_DICT = {'A': None,'B': None,'C': None,'D': None,'E': None,'F': None,'G': None,'H': None,'I': None,'J': None,'K': None,'L': None,'M': None,'N': None,'O': None,'P': None,'Q': None,'R': None,'S': None,'T': None,'U': None,'V': None,'W': None,'X': None,'Y': None,'Z': None}
@@ -220,6 +221,11 @@ def read_input_files():
 
     return input_messages
 
+def read_input(fname):
+    f = open(fname, 'r')
+    encr_text = f.read()
+    return encr_text.lower()
+
 #gets the frequency of all the letters in the file
 def get_letter_freq(message):
 
@@ -345,63 +351,57 @@ def reset_key_dict():
 #Input: List of messages
 #Ouput: Prints the name of each input file as well as the top 3 most common words of length 1, 2, 3, 4
 
-def get_key(messages):
+def get_key(message):
 
-    file_num = 0
+    m = message
 
-    for m in messages:
+    reset_key_dict()
 
-        reset_key_dict()
+    freq_words = []
+    words_by_len = get_all_words(m)
+    freq_dict = get_letter_freq(m)
+    
+    #for each word length grab the 3 most popular words
+    for l in words_by_len:
+        cnt = Counter()
+        for w in l:
+            cnt[w] += 1
 
-        freq_words = []
-        words_by_len = get_all_words(m)
-        freq_dict = get_letter_freq(m)
-        
-        #for each word length grab the 3 most popular words
-        for l in words_by_len:
-            cnt = Counter()
-            for w in l:
-                cnt[w] += 1
+        freq_words.append([cnt.most_common(4)[0][0], cnt.most_common(4)[1][0], cnt.most_common(4)[2][0], cnt.most_common(4)[3][0]])
 
-            freq_words.append([cnt.most_common(4)[0][0], cnt.most_common(4)[1][0], cnt.most_common(4)[2][0], cnt.most_common(4)[3][0]])
-
-        print_file_data(freq_words, file_num)
-
-        #do this to skip first input file as it corrupts the data
-        if file_num == 0:
-            file_num += 1
-            continue
-        
-        #begin setting letters
-        set_the_and(freq_words)
-        set_i(freq_words)
-        set_w(words_by_len)
-        set_o_f(freq_words)
-        set_k(words_by_len)
-        set_r(words_by_len)
-        set_m(words_by_len)
-        set_b(words_by_len)
-        set_s(words_by_len)
-        set_y(words_by_len)
-        guess_j_q_x_z(freq_dict)
+    #begin setting letters
+    set_the_and(freq_words)
+    set_i(freq_words)
+    set_w(words_by_len)
+    set_o_f(freq_words)
+    set_k(words_by_len)
+    set_r(words_by_len)
+    set_m(words_by_len)
+    set_b(words_by_len)
+    set_s(words_by_len)
+    set_y(words_by_len)
+    guess_j_q_x_z(freq_dict)
 
 
-        #fill rest of places with random characters
-        fill_dict()
+    #fill rest of places with random characters
+    fill_dict()
 
-        str = get_key_str(KEY_DICT)
-        print(str)
-        file_num += 1
-
-
-
+    str = get_key_str(KEY_DICT)
+    
+    f = open('key.txt', 'w')
+    f.write(str)
+    
 def main():
 
-    messages = read_input_files()
+    if len(sys.argv) != 2:
+        print(f"Program needs exactly 1 argument\n{len(sys.argv) - 1} given")
+        exit
 
-    get_key(messages)
+    message = read_input(sys.argv[1])
 
-        
+    get_key(message)
+
+    print("Done!")
 
 #freq_dict = {'A': 0,'B': 0,'C': 0,'D': 0,'E': 0,'F': 0,'G': 0,'H': 0,'I': 0,'J': 0,'K': 0,'L': 0,'M': 0,'N': 0,'O': 0,'P': 0,'Q': 0,'R': 0,'S': 0,'T': 0,'U': 0,'V': 0,'W': 0,'X': 0,'Y': 0,'Z': 0}
 if __name__ == "__main__":
